@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Misi Detektif Bahasa</title>
+<style>
+:root{--navy:#20345b;--blue:#dff2ff;--purple:#8c79d6;--yellow:#ffe28a;--ink:#263653}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:Arial,sans-serif;background:linear-gradient(135deg,#e8f6ff,#f4edff);color:var(--ink);display:flex;align-items:center;justify-content:center;padding:20px}
+.game{width:min(720px,100%);background:#fff;border:3px solid #d8eaff;border-radius:28px;padding:clamp(20px,5vw,38px);box-shadow:0 15px 40px #526b9422}
+.top{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+.tag{background:#f0eaff;color:#6552a8;border-radius:99px;padding:8px 13px;font-size:13px;font-weight:bold}
+h1{font-size:clamp(27px,5vw,42px);color:var(--navy);margin:18px 0 8px}
+p{line-height:1.6}
+.subtitle{color:#64748b}
+.emoji{font-size:60px;text-align:center;margin:15px}
+button{border:0;border-radius:14px;padding:14px 18px;font-size:16px;font-weight:bold;cursor:pointer;transition:.15s}
+button:hover{transform:translateY(-2px)}
+.primary{background:var(--purple);color:white;width:100%;margin-top:16px}
+.option{display:block;width:100%;text-align:left;background:#f2f7ff;color:var(--ink);margin:10px 0;border:2px solid transparent}
+.option:hover{border-color:#a99be8;background:#f8f5ff}
+.option:disabled{cursor:default;opacity:1}
+.option.correct{background:#e5f8ec;border-color:#5bb77a}
+.option.wrong{background:#fff0ef;border-color:#e58b83}
+.progress-wrap{height:10px;background:#edf1f8;border-radius:99px;overflow:hidden;margin:18px 0}
+.progress{height:100%;width:0;background:linear-gradient(90deg,#8c79d6,#64b8df);transition:.3s}
+.meta{display:flex;justify-content:space-between;color:#64748b;font-size:14px}
+.feedback{padding:14px;border-radius:14px;margin-top:14px;line-height:1.5}
+.good{background:#e9f8ee;color:#23683c}.bad{background:#fff0ef;color:#8a3933}
+.hidden{display:none}
+.score{font-size:52px;font-weight:bold;color:#7562c3;text-align:center;margin:12px}
+.footer{text-align:center;font-size:12px;color:#91a0b7;margin-top:22px}
+</style>
+</head>
+<body>
+<main class="game">
+  <div class="top"><span class="tag">🕵️ CABARAN BAHASA</span><span class="tag">10 SOALAN</span></div>
+  <section id="start">
+    <div class="emoji">🕵️‍♀️🔎</div>
+    <h1>Misi Detektif Bahasa</h1>
+    <p class="subtitle">Cabaran Bijak Digital</p>
+    <p>Hai, detektif! Sedia untuk menyiasat penggunaan bahasa rojak di media sosial? Jawab 10 soalan dan kumpulkan markah sebanyak mungkin.</p>
+    <p>✨ Pilih jawapan yang paling tepat. Anda akan menerima maklum balas selepas setiap soalan.</p>
+    <button class="primary" onclick="startGame()">MULA MISI 🚀</button>
+  </section>
+  <section id="quiz" class="hidden">
+    <div class="meta"><span id="questionNo">Soalan 1 daripada 10</span><span id="scoreNow">Skor: 0</span></div>
+    <div class="progress-wrap"><div class="progress" id="progress"></div></div>
+    <h2 id="question"></h2>
+    <div id="options"></div>
+    <div id="feedback" class="feedback hidden" aria-live="polite"></div>
+    <button id="next" class="primary hidden" onclick="nextQuestion()">Soalan seterusnya ➜</button>
+  </section>
+  <section id="end" class="hidden">
+    <div class="emoji">🏆</div>
+    <h1 style="text-align:center">Misi Selesai!</h1>
+    <p class="subtitle" style="text-align:center">Tahniah kerana menyelesaikan cabaran detektif bahasa.</p>
+    <div class="score" id="finalScore">0/10</div>
+    <p id="message" style="text-align:center"></p>
+    <button class="primary" onclick="startGame()">MAIN SEMULA 🔄</button>
+  </section>
+  <div class="footer">Gunakan bahasa dengan bijak, santun dan bertanggungjawab 💙</div>
+</main>
+<script>
+const questions=[
+{q:"Apakah maksud bahasa rojak?",a:["Bahasa yang hanya menggunakan bahasa Melayu baku","Percampuran dua atau lebih bahasa dalam komunikasi","Bahasa yang digunakan dalam buku teks sahaja","Bahasa yang mempunyai banyak peribahasa"],c:1,e:"Bahasa rojak merujuk kepada percampuran dua atau lebih bahasa dalam pertuturan atau penulisan."},
+{q:"Yang manakah contoh penggunaan bahasa rojak?",a:["Saya sedang membaca buku.","Please tunggu saya sekejap.","Mereka bermain bola di padang.","Kami akan pulang sekarang."],c:1,e:"Ayat ini mencampurkan bahasa Inggeris dengan bahasa Melayu."},
+{q:"Apakah yang dimaksudkan dengan peralihan kod?",a:["Menukar tulisan kepada nombor","Bertukar daripada satu bahasa kepada bahasa lain dalam komunikasi","Menyebut perkataan dengan kuat","Meringkaskan semua ayat"],c:1,e:"Peralihan kod berlaku apabila penutur bertukar bahasa mengikut konteks komunikasi."},
+{q:"Ayat manakah paling sesuai untuk e-mel rasmi kepada pensyarah?",a:["Hi sir, assignment saya dah submit!","Weh, saya nak tanya sikit.","Saya ingin bertanya tentang tugasan yang telah diberikan.","Tugasan tu macam mana ya hehe"],c:2,e:"Situasi rasmi memerlukan bahasa yang sopan, jelas dan gramatis."},
+{q:"Perkataan seperti 'healing' dan 'overthinking' sering digunakan kerana...",a:["Pengaruh istilah dan kandungan popular di media sosial","Semua perkataan Melayu sudah tidak boleh digunakan","Tiada bahasa lain di dunia","Ia wajib digunakan dalam setiap ayat"],c:0,e:"Kandungan digital dan budaya popular boleh mempengaruhi pilihan kosa kata pengguna."},
+{q:"Antara berikut, yang manakah faktor penggunaan bahasa rojak di media sosial?",a:["Pengaruh rakan sebaya dan trend dalam talian","Larangan menggunakan telefon","Ketiadaan aplikasi komunikasi","Penggunaan kamus yang kerap"],c:0,e:"Gaya komunikasi rakan dan trend media sosial boleh mempengaruhi bahasa yang digunakan."},
+{q:"Apakah cabaran jika bahasa tidak baku digunakan secara berlebihan dalam semua situasi?",a:["Pengguna pasti menjadi lebih fasih","Pengguna mungkin sukar menyesuaikan bahasa dalam situasi rasmi","Semua komunikasi menjadi lebih tepat","Tiada kesan langsung dalam apa-apa keadaan"],c:1,e:"Penggunaan bahasa perlu disesuaikan dengan khalayak dan situasi, khususnya dalam urusan rasmi."},
+{q:"Anda ternampak rakan menggunakan ayat yang kurang gramatis. Apakah tindakan terbaik?",a:["Mengejeknya di ruangan komen","Menyebarkan kesilapannya","Menegur dengan sopan dan memberikan cadangan yang betul","Terus memarahinya"],c:2,e:"Teguran yang berhemah menunjukkan sikap hormat dan kesantunan digital."},
+{q:"Apakah contoh kempen kreatif untuk menggalakkan penggunaan bahasa Melayu yang baik?",a:["Cabaran menukar ayat bahasa rojak kepada ayat gramatis","Menggalakkan semua orang mengejek kesalahan bahasa","Menyebarkan maklumat yang tidak disahkan","Melarang semua bentuk komunikasi digital"],c:0,e:"Cabaran digital yang menyeronokkan boleh meningkatkan kesedaran pengguna."},
+{q:"Apakah sikap paling wajar ketika menggunakan bahasa rojak di media sosial?",a:["Menggunakannya tanpa mengira keadaan","Menganggap bahasa Melayu tidak penting","Menyesuaikan bahasa dengan konteks dan khalayak","Menghina orang yang menggunakan bahasa baku"],c:2,e:"Kreativiti berbahasa boleh diraikan sambil mengekalkan kejelasan dan menghormati bahasa."}
+];
+let index=0,score=0,answered=false;
+const $=id=>document.getElementById(id);
+function show(id){["start","quiz","end"].forEach(x=>$(x).classList.toggle("hidden",x!==id))}
+function startGame(){index=0;score=0;show("quiz");render()}
+function render(){
+ answered=false;$("questionNo").textContent=`Soalan ${index+1} daripada ${questions.length}`;
+ $("scoreNow").textContent=`Skor: ${score}`;$("progress").style.width=`${index/questions.length*100}%`;
+ const item=questions[index];$("question").textContent=item.q;$("options").innerHTML="";
+ $("feedback").className="feedback hidden";$("next").classList.add("hidden");
+ item.a.forEach((answer,i)=>{const b=document.createElement("button");b.className="option";b.textContent=String.fromCharCode(65+i)+". "+answer;b.onclick=()=>choose(i,b);$("options").appendChild(b)});
+}
+function choose(choice,button){
+ if(answered)return;answered=true;const item=questions[index];const buttons=[...$("options").children];
+ buttons.forEach((b,i)=>{b.disabled=true;if(i===item.c)b.classList.add("correct")});
+ const fb=$("feedback");
+ if(choice===item.c){score++;fb.className="feedback good";fb.innerHTML="✅ <strong>Tepat sekali!</strong> "+item.e}
+ else{button.classList.add("wrong");fb.className="feedback bad";fb.innerHTML="❌ <strong>Belum tepat.</strong> Jawapan yang betul ialah <strong>"+item.a[item.c]+"</strong>. "+item.e}
+ $("scoreNow").textContent=`Skor: ${score}`;$("next").textContent=index===questions.length-1?"Lihat keputusan 🏆":"Soalan seterusnya ➜";$("next").classList.remove("hidden");
+}
+function nextQuestion(){index++;if(index<questions.length){render()}else{show("end");$("progress").style.width="100%";$("finalScore").textContent=`${score}/10`;let m=score===10?"Hebat! Anda detektif bahasa yang sangat cekap! 🌟":score>=7?"Syabas! Pengetahuan bahasa anda sangat baik. Teruskan! 💙":score>=4?"Bagus! Teruskan belajar dan tingkatkan kesedaran berbahasa. 🌱":"Jangan putus asa! Cuba lagi dan jadilah detektif bahasa yang lebih hebat. 💪";$("message").textContent=m}}
+</script>
+</body>
+</html>
